@@ -54,10 +54,6 @@ Open http://127.0.0.1:5000 in your browser.
 - Additional role-level constraints (for example preventing multiple PIs in `WorksOn`) are implemented via triggers where needed; see [sql/schema_sqlite.sql](sql/schema_sqlite.sql).
 - Equipment concurrency is limited via triggers to prevent more than 3 overlapping users per equipment.
 
-## Tests & utilities
-- `run_persistence_test.py` and `run_add_test.py` are available for automated checks (optional).
-- `integrity_check.py` and `debug_init.py` are small utilities used during development.
-
 ## Recommended cleanup before committing
 - Add the virtual environment and DB file to `.gitignore`:
 

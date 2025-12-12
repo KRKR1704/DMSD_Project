@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Works On - Member Project Assignments</h2>
+  <p><a href="{{ url_for('workson_new') }}" class="btn btn-primary">+ Add Assignment</a></p>
+  <table>
+    <tr><th>Member ID</th><th>Member Name</th><th>Project ID</th><th>Role</th><th>Weekly Hours</th><th>Actions</th></tr>
+    {% for w in works_on %}
+    <tr>
+      <td>{{ w.member_id }}</td>
+      <td>{{ w.member.name if w.member else 'N/A' }}</td>
+      <td>{{ w.project_id }}</td>
+      <td>{{ w.role }}</td>
+      <td>{{ w.weekly_hours }}</td>
+      <td>
+        <a href="{{ url_for('workson_edit', member_id=w.member_id, project_id=w.project_id) }}" class="btn btn-small">Edit</a>
+        <form method="POST" action="{{ url_for('workson_delete', member_id=w.member_id, project_id=w.project_id) }}" style="display: inline;">
+          <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Delete this assignment?')">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <style>
+    .btn-small {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+  </style>
+{% endblock %}

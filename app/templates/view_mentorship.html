@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Mentorship - Mentor-Mentee Relationships</h2>
+  <p><a href="{{ url_for('mentorship_new') }}" class="btn btn-primary">+ Create Mentorship</a></p>
+  <table>
+    <tr><th>Mentor ID</th><th>Mentor Name</th><th>Mentee ID</th><th>Mentee Name</th><th>Start Date</th><th>End Date</th><th>Notes</th><th>Actions</th></tr>
+    {% for m in mentorships %}
+    <tr>
+      <td>{{ m.mentor_id }}</td>
+      <td>{{ m.mentor.name if m.mentor else 'N/A' }}</td>
+      <td>{{ m.mentee_id }}</td>
+      <td>{{ m.mentee.name if m.mentee else 'N/A' }}</td>
+      <td>{{ m.start_date }}</td>
+      <td>{{ m.end_date }}</td>
+      <td>{{ (m.notes[:30] + '...') if m.notes and m.notes|length > 30 else m.notes }}</td>
+      <td>
+        <a href="{{ url_for('mentorship_edit', mentor_id=m.mentor_id, mentee_id=m.mentee_id) }}" class="btn btn-small">Edit</a>
+        <form method="POST" action="{{ url_for('mentorship_delete', mentor_id=m.mentor_id, mentee_id=m.mentee_id) }}" style="display: inline;">
+          <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Delete this mentorship?')">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <style>
+    .btn-small {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+  </style>
+{% endblock %}

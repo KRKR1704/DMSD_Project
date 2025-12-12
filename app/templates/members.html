@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Members</h2>
+  <div class="toolbar">
+    <a class="link-btn" href="{{ url_for('member_new') }}">+ Add Member</a>
+  </div>
+  <table>
+    <tr><th>ID</th><th>Name</th><th>Type</th><th>Join Date</th></tr>
+    {% for m in members %}
+    <tr>
+      <td>{{ m.member_id }}</td>
+      <td>{{ m.name }}</td>
+      <td>{{ m.member_type }}</td>
+      <td>{{ m.join_date }}</td>
+      <td>
+        <a class="link-btn" href="{{ url_for('member_edit', mid=m.member_id) }}">Edit</a>
+        <form method="post" action="{{ url_for('member_delete', mid=m.member_id) }}" onsubmit="return confirm('Delete member?');" style="display:inline">
+          <button type="submit" class="btn btn-secondary">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>{% if use %}Edit Use{% else %}Add Equipment Use{% endif %}</h2>
+  <form method="post">
+    <label>Equipment:
+      <select name="equip_id">
+        {% for e in equipment_list %}
+          <option value="{{ e.equip_id }}">{{ e.name }} (ID {{ e.equip_id }})</option>
+        {% endfor %}
+      </select>
+    </label><br>
+    <label>Member:
+      <select name="member_id">
+        {% for m in members %}
+          <option value="{{ m.member_id }}">{{ m.name }} ({{ m.member_type }})</option>
+        {% endfor %}
+      </select>
+    </label><br>
+    <label>Start date: <input type="date" id="use_start_date" required></label>
+    <label>Start time: <select id="use_start_time" required></select></label><br>
+    <label>End date: <input type="date" id="use_end_date" required></label>
+    <label>End time: <select id="use_end_time" required></select></label><br>
+    <!-- hidden combined datetime fields sent to server -->
+    <input type="hidden" id="use_start" name="use_start" value="">
+    <input type="hidden" id="use_end" name="use_end" value="">
+    <label>Purpose: <input name="purpose" value="" required></label><br>
+    <div id="equip_avail" style="margin-top:8px;color:#333"></div>
+    <button type="submit">Save</button>
+  </form>
+  <script>
+    const equipSel = document.querySelector('select[name="equip_id"]');
+    const startDate = document.getElementById('use_start_date');
+    const startTime = document.getElementById('use_start_time');
+    const endDate = document.getElementById('use_end_date');
+    const endTime = document.getElementById('use_end_time');
+    const startInput = document.getElementById('use_start');
+    const endInput = document.getElementById('use_end');
+    const memberSel = document.querySelector('select[name="member_id"]');
+    const availDiv = document.getElementById('equip_avail');
+    // populate time dropdowns (30-minute intervals)
+    function buildTimeOptions(sel){
+      sel.innerHTML = '';
+      for(let h=0; h<24; h++){
+        for(let m=0; m<60; m+=30){
+          const hh = String(h).padStart(2,'0');
+          const mm = String(m).padStart(2,'0');
+          const opt = document.createElement('option');
+          opt.value = hh + ':' + mm;
+          opt.textContent = hh + ':' + mm;
+          sel.appendChild(opt);
+        }
+      }
+    }
+    buildTimeOptions(startTime);
+    buildTimeOptions(endTime);
+
+    function combineDateTime(){
+      const sd = startDate.value;
+      const st = startTime.value;
+      const ed = endDate.value;
+      const et = endTime.value;
+      if(sd && st) startInput.value = sd + 'T' + st;
+      else startInput.value = '';
+      if(ed && et) endInput.value = ed + 'T' + et;
+      else endInput.value = '';
+    }
+
+    async function checkAvail(){
+      combineDateTime();
+      const equip = equipSel.value;
+      const s = startInput.value;
+      const e = endInput.value;
+      if(!equip || !s || !e){ availDiv.textContent = ''; return; }
+      const params = new URLSearchParams({equip_id: equip, start: s, end: e});
+      try{
+        const res = await fetch('/equipment/availability?' + params.toString());
+        const j = await res.json();
+        if(j.available){
+          availDiv.style.color = 'green';
+          availDiv.textContent = `Available — current overlapping users: ${j.overlapping}/${j.limit}`;
+        } else {
+          availDiv.style.color = 'red';
+          availDiv.textContent = `Not available — current overlapping users: ${j.overlapping}/${j.limit}`;
+        }
+        // also check member-specific conflicts
+        try{
+          const mid = memberSel.value;
+          if(mid){
+            const mparams = new URLSearchParams({equip_id: equip, member_id: mid, start: s, end: e});
+            const mres = await fetch('/equipment/member_conflicts?' + mparams.toString());
+            const mj = await mres.json();
+            if(!mj.allowed){
+              availDiv.style.color = 'red';
+              availDiv.textContent = 'Conflict for selected member: you already have a booking overlapping or on the same day.';
+            }
+          }
+        }catch(err){
+          // ignore member-check errors
+        }
+      }catch(err){
+        availDiv.style.color = '#333';
+        availDiv.textContent = 'Availability unknown';
+      }
+    }
+    equipSel.addEventListener('change', checkAvail);
+    startDate.addEventListener('change', checkAvail);
+    endDate.addEventListener('change', checkAvail);
+    startTime.addEventListener('change', checkAvail);
+    endTime.addEventListener('change', checkAvail);
+    // prevent submit if not available client-side
+    document.querySelector('form').addEventListener('submit', async function(ev){
+      combineDateTime();
+      const equip = equipSel.value; const s = startInput.value; const e = endInput.value; const mid = memberSel.value;
+      if(equip && s && e){
+        const params = new URLSearchParams({equip_id: equip, start: s, end: e});
+        const res = await fetch('/equipment/availability?' + params.toString());
+        const j = await res.json();
+        if(!j.available){ ev.preventDefault(); alert('Selected equipment is not available during that time (over limit).'); return; }
+        if(mid){
+          const mparams = new URLSearchParams({equip_id: equip, member_id: mid, start: s, end: e});
+          const mres = await fetch('/equipment/member_conflicts?' + mparams.toString());
+          const mj = await mres.json();
+          if(!mj.allowed){ ev.preventDefault(); alert('You already have a booking for this equipment overlapping or on the same day.'); return; }
+        }
+      }
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Equipment Usage Tracking</h2>
+  <p><a href="{{ url_for('equipment_use_new') }}" style="padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">+ Add Equipment Use</a></p>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Equipment</th>
+      <th>Member</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Purpose</th>
+      <th>Actions</th>
+    </tr>
+    {% for use in uses %}
+    <tr>
+      <td>{{ use.use_id }}</td>
+      <td>{{ use.equip_id }}</td>
+      <td>{{ use.member_id }}</td>
+      <td>{{ use.use_start }}</td>
+      <td>{{ use.use_end }}</td>
+      <td>{{ use.purpose }}</td>
+      <td>
+        <form style="display:inline" method="post" action="{{ url_for('equipment_use_delete', uid=use.use_id) }}" onsubmit="return confirm('Delete this usage record?');">
+          <button type="submit">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

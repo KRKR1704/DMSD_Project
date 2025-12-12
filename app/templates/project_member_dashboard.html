@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Project & Member Management</h2>
+  <p>Choose:</p>
+  <div style="display:flex; gap:12px;">
+    <a href="/projects" style="padding:12px 18px; background:#007bff; color:#fff; border-radius:6px; text-decoration:none;">Projects</a>
+    <a href="/members" style="padding:12px 18px; background:#17a2b8; color:#fff; border-radius:6px; text-decoration:none;">Members</a>
+    <a href="/pm/project_status" style="padding:12px 18px; background:#fd7e14; color:#fff; border-radius:6px; text-decoration:none;">Project Status</a>
+    <a href="/pm/mentorship_relations" style="padding:12px 18px; background:#6610f2; color:#fff; border-radius:6px; text-decoration:none;">Mentorship Relations</a>
+  </div>
+  <hr>
+  <h3>Features</h3>
+  <ul>
+    <li>Query, add, update, and remove members and projects.</li>
+    <li>Display project status.</li>
+    <li>Show members who worked on projects funded by a given grant (use Reports).</li>
+    <li>Show mentorship relations among members who have worked on the same project (use Reports).</li>
+  </ul>
+{% endblock %}

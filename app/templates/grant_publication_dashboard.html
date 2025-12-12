@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Grant & Publication Reporting</h2>
+  <p>Choose a report:</p>
+  <div style="display:flex; gap:12px; align-items:center;">
+    <a href="/grants" style="padding:12px 18px; background:#ffc107; color:#000; border-radius:6px; text-decoration:none;">Grants</a>
+    <a href="{{ url_for('grant_status') }}" style="padding:8px 12px;background:#28a745;color:#fff;border:none;border-radius:6px;text-decoration:none;">Grant Status</a>
+    <a href="/publications" style="padding:12px 18px; background:#20c997; color:#fff; border-radius:6px; text-decoration:none; margin-left:12px;">Publications</a>
+    <a href="/reports/top_authors" style="padding:12px 18px; background:#6f42c1; color:#fff; border-radius:6px; text-decoration:none; margin-left:12px;">Top Authors</a>
+    <a href="{{ url_for('avg_student_pubs') }}" style="padding:12px 18px; margin-left:12px; background:#17a2b8; color:#fff; border:none; border-radius:6px; text-decoration:none">Avg Student Pubs / Major</a>
+  </div>
+  
+{% endblock %}

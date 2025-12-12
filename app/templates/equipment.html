@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Equipment</h2>
+  <div class="toolbar" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+    <div style="display:flex;gap:8px;align-items:center">
+      <label style="white-space:nowrap">Check status at: <input type="datetime-local" id="status_time"></label>
+      <button id="refresh_status" class="btn">Refresh</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-left:auto">
+      <a class="link-btn" href="{{ url_for('equipment_new') }}">+ Add Equipment</a>
+      <a class="link-btn" href="{{ url_for('equipment_use_list') }}">View Equipment Usage</a>
+      <a class="link-btn" href="{{ url_for('equipment_use_new') }}">+ Add Equipment Use</a>
+    </div>
+  </div>
+  <div style="margin:12px 0; display:flex; gap:8px; align-items:center; flex-wrap:nowrap;">
+    <label style="display:flex;gap:6px;align-items:center; white-space:nowrap">Member ID:
+      <input type="text" id="member_search" placeholder="Member id (e.g. S1)" style="padding:6px;border:1px solid #ccc;border-radius:4px;min-width:120px;max-width:220px">
+    </label>
+    <button id="find_member" class="btn" style="white-space:nowrap">Find</button>
+  </div>
+  <div id="member_search_results" style="margin:12px 0"></div>
+  <table>
+    <tr><th>ID</th><th>Name</th><th>Type</th><th>Live Status</th><th>Location</th><th>Actions</th></tr>
+    {% for e in equipment %}
+    <tr data-dbstatus="{{ e.status }}">
+      <td>{{ e.equip_id }}</td>
+      <td>{{ e.name }}</td>
+      <td>{{ e.type }}</td>
+      <td class="live_status" data-eid="{{ e.equip_id }}">-</td>
+      <td>{{ e.location }}</td>
+      <td>
+        <a class="link-btn" href="{{ url_for('equipment_edit', eid=e.equip_id) }}">Edit</a>
+        <form method="post" action="{{ url_for('equipment_delete', eid=e.equip_id) }}" onsubmit="return confirm('Delete equipment?');" style="display:inline">
+          <button type="submit" class="btn btn-secondary">Delete</button>
+        </form>
+        <button class="link-btn users-btn" data-eid="{{ e.equip_id }}" style="margin-left:6px">Users</button>
+      </td>
+    </tr>
+    <tr class="users-row hidden" data-for="{{ e.equip_id }}">
+      <td colspan="6"></td>
+    </tr>
+    {% endfor %}
+  </table>
+  <script>
+    const statusInput = document.getElementById('status_time');
+    const refreshBtn = document.getElementById('refresh_status');
+    // default to now
+    function pad(n){return String(n).padStart(2,'0');}
+    function setNow(){
+      const d = new Date();
+      const s = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+      statusInput.value = s;
+    }
+    setNow();
+    async function refreshStatuses(){
+      const t = statusInput.value;
+      if(!t) return;
+      const rows = document.querySelectorAll('.live_status');
+      for(const cell of rows){
+        const eid = cell.dataset.eid;
+        try{
+          const params = new URLSearchParams({equip_id: eid, start: t, end: t});
+          const res = await fetch('/equipment/availability?' + params.toString());
+          const j = await res.json();
+          // DB-level status takes precedence (kept in data attribute but not shown)
+          const dbStatus = cell.parentElement.dataset.dbstatus ? cell.parentElement.dataset.dbstatus.trim().toLowerCase() : '';
+          if(dbStatus === 'retired'){
+            cell.textContent = 'Retired';
+            cell.className = 'live_status text-gray';
+          } else if(!j.available){
+            cell.textContent = 'In Use (' + j.overlapping + ')';
+            cell.className = 'live_status text-red';
+          } else {
+            cell.textContent = 'Available';
+            cell.className = 'live_status text-green';
+          }
+        }catch(err){
+          cell.textContent = 'Unknown';
+          cell.className = 'live_status text-gray';
+        }
+      }
+    }
+    refreshBtn.addEventListener('click', refreshStatuses);
+    // refresh on load
+    refreshStatuses();
+
+    // --- Member search and per-equipment users ---
+    const memberSearchInput = document.getElementById('member_search');
+    const findMemberBtn = document.getElementById('find_member');
+    const memberResults = document.getElementById('member_search_results');
+
+    async function findMember(){
+      const q = memberSearchInput.value.trim();
+      memberResults.innerHTML = '';
+      if(!q) return;
+      try{
+        const params = new URLSearchParams({member_id: q});
+        const res = await fetch('/members/search?' + params.toString());
+        if(!res.ok){ memberResults.textContent = 'Member not found'; return; }
+        const j = await res.json();
+        // show brief info, current equipment usage, and projects
+        let html = `<div class="card"><strong>${j.member_id} - ${j.name}</strong> (${j.type})`;
+        // projects the member works on
+        if(j.projects && j.projects.length){
+          html += '<div style="margin-top:8px"><em>Projects:</em><ul>' + j.projects.map(p=>`<li>${p.project_id} - ${p.title || '-'} (${p.role || '-'}, ${p.weekly_hours || '-'} hrs/wk)</li>`).join('') + '</ul></div>';
+        } else {
+          html += '<div style="margin-top:8px"><em>Projects:</em> None</div>';
+        }
+        // equipment uses
+        if(j.current_uses && j.current_uses.length){
+          html += '<div style="margin-top:8px"><em>Current Equipment Uses:</em><ul>' + j.current_uses.map(u=>`<li>${u.equip_id} ${u.equip_name || '-'} (use: ${u.use_id || '-'})</li>`).join('') + '</ul></div>';
+        } else {
+          html += '<div style="margin-top:8px"><em>Current Equipment Uses:</em> None</div>';
+        }
+        html += '</div>';
+        memberResults.innerHTML = html;
+      }catch(err){ memberResults.textContent = 'Error searching member'; }
+    }
+
+    if(memberSearchInput && findMemberBtn && memberResults){
+      findMemberBtn.addEventListener('click', findMember);
+    }
+
+    // users button per equipment
+    function attachUsersButtons(){
+      const buttons = document.querySelectorAll('.users-btn');
+      if(!buttons || !buttons.length) return;
+      buttons.forEach(btn=>{
+        try{ btn.removeEventListener('click', usersBtnHandler); }catch(e){}
+        btn.addEventListener('click', usersBtnHandler);
+      });
+    }
+
+    async function usersBtnHandler(e){
+      const eid = e.currentTarget.dataset.eid;
+      toggleUsersForEquipment(eid);
+    }
+
+    async function toggleUsersForEquipment(eid){
+      const row = document.querySelector(`.users-row[data-for='${eid}']`);
+      if(!row) return;
+      if(!row.classList.contains('hidden')){ row.classList.add('hidden'); return; }
+      // fetch users
+      try{
+        const params = new URLSearchParams({equip_id: eid});
+        const res = await fetch('/equipment/users?' + params.toString());
+        if(!res.ok){ row.querySelector('td').textContent = 'Error loading users'; row.classList.remove('hidden'); return; }
+        const j = await res.json();
+        renderUsersIntoRow(row, j);
+      }catch(err){ row.querySelector('td').textContent = 'Error loading users'; row.classList.remove('hidden'); }
+    }
+
+    function renderUsersIntoRow(row, data){
+      const td = row.querySelector('td');
+      if(!data || !data.users || !data.users.length){ td.innerHTML = '<div style="padding:6px">No current users</div>'; row.classList.remove('hidden'); return; }
+      let html = '<div style="padding:6px"><ul>' + data.users.map(u=>{
+        const projs = u.projects && u.projects.length ? u.projects.map(p=>`${p.project_id} (${p.title || '-'})`).join(', ') : '-';
+        return `<li><strong>${u.member_id}</strong> ${u.name} — ${u.type} — projects: ${projs}</li>`;
+      }).join('') + '</ul></div>';
+      td.innerHTML = html; row.classList.remove('hidden');
+    }
+
+    // attach on initial load
+    attachUsersButtons();
+  </script>
+{% endblock %}

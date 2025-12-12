@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Project Grant - Funding Allocation</h2>
+  <p><a href="{{ url_for('projectgrant_new') }}" class="btn btn-primary">+ Allocate Grant</a></p>
+  <table>
+    <tr><th>Project ID</th><th>Project Title</th><th>Grant ID</th><th>Amount Allocated</th><th>Actions</th></tr>
+    {% for pg in project_grants %}
+    <tr>
+      <td>{{ pg.project_id }}</td>
+      <td>{{ pg.project_id }}</td>
+      <td>{{ pg.grant_id }}</td>
+      <td>${{ "{:,.2f}".format(pg.amount_allocated) if pg.amount_allocated else 'N/A' }}</td>
+      <td>
+        <a href="{{ url_for('projectgrant_edit', project_id=pg.project_id, grant_id=pg.grant_id) }}" class="btn btn-small">Edit</a>
+        <form method="POST" action="{{ url_for('projectgrant_delete', project_id=pg.project_id, grant_id=pg.grant_id) }}" style="display: inline;">
+          <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Remove this allocation?')">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <style>
+    .btn-small {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+  </style>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Grants</h2>
+  <div class="toolbar">
+    <a class="link-btn" href="{{ url_for('grant_new') }}">Add Grant</a>
+  </div>
+  <table>
+    <tr><th>ID</th><th>Source</th><th>Budget</th><th>Start</th><th>Duration</th><th>Actions</th></tr>
+    {% for g in grants %}
+    <tr>
+      <td>{{ g.grant_id }}</td>
+      <td>{{ g.source }}</td>
+      <td>{{ g.budget }}</td>
+      <td>{{ g.start_date }}</td>
+      <td>{{ g.duration }}</td>
+      <td>
+        <a class="link-btn" href="{{ url_for('grant_edit', gid=g.grant_id) }}">Edit</a>
+        <form method="post" action="{{ url_for('grant_delete', gid=g.grant_id) }}" style="display:inline" onsubmit="return confirm('Delete grant {{ g.grant_id }}?');">
+          <button type="submit" class="btn btn-secondary">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

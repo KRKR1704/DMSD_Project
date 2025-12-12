@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>All Lab Data - Complete Overview</h2>
+  <p>Click on any tile to view, edit, or delete records from that table.</p>
+  
+  <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+    <!-- Member Tables -->
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px; background: #f0f8ff;">
+      <h3>Lab Members</h3>
+      <p>Core member records (faculty, students, collaborators)</p>
+      <a href="{{ url_for('view_all_members') }}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View Members</a>
+    </div>
+
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px; background: #f0f8ff;">
+      <h3>Faculty</h3>
+      <p>Faculty-specific information and details</p>
+      <a href="{{ url_for('view_faculty') }}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View Faculty</a>
+    </div>
+
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px; background: #f0f8ff;">
+      <h3>Students</h3>
+      <p>Student-specific information and academic details</p>
+      <a href="{{ url_for('view_students') }}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View Students</a>
+    </div>
+
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px; background: #f0f8ff;">
+      <h3>Collaborators</h3>
+      <p>External collaborators and their affiliations</p>
+      <a href="{{ url_for('view_collaborators') }}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View Collaborators</a>
+    </div>
+
+    <!-- Project Tables -->
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px; background: #fff8f0;">
+      <h3>Projects</h3>
+      <p>Research projects and their details</p>
+      <a href="{{ url_for('view_all_projects') }}" style="padding: 10px 20px; background: #ff7f50; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View Projects</a>
+    </div>
+
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px; background: #fff8f0;">
+      <h3>WorksOn</h3>
+      <p>Member assignments and roles in projects</p>
+      <a href="{{ url_for('view_works_on') }}" style="padding: 10px 20px; background: #ff7f50; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View WorksOn</a>
+    </div>
+
+    <!-- Grant Tables -->
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px; background: #f0fff0;">
+      <h3>Grants</h3>
+      <p>Funding grants and financial details</p>
+      <a href="{{ url_for('view_all_grants') }}" style="padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View Grants</a>
+    </div>
+
+    <!-- Equipment Tables -->
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px; background: #ffe0f0;">
+      <h3>Equipment</h3>
+      <p>Lab equipment inventory and status</p>
+      <a href="{{ url_for('view_all_equipment') }}" style="padding: 10px 20px; background: #e83e8c; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View Equipment</a>
+    </div>
+
+    <!-- Publication Tables -->
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px; background: #f5f0ff;">
+      <h3>Publications</h3>
+      <p>Research publications and papers</p>
+      <a href="{{ url_for('view_all_publications') }}" style="padding: 10px 20px; background: #6f42c1; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View Publications</a>
+    </div>
+
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px; background: #f5f0ff;">
+      <h3>Authorship</h3>
+      <p>Author assignments and publication order</p>
+      <a href="{{ url_for('view_authorship') }}" style="padding: 10px 20px; background: #6f42c1; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View Authorship</a>
+    </div>
+
+    <!-- Mentorship Table -->
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px; background: #fff3cd;">
+      <h3>Mentorship</h3>
+      <p>Mentor-mentee relationships and tracking</p>
+      <a href="{{ url_for('view_mentorship') }}" style="padding: 10px 20px; background: #ffc107; color: black; text-decoration: none; border-radius: 4px; display: inline-block;">View Mentorship</a>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>{% if projectgrant %}Edit{% else %}Allocate{% endif %} Grant to Project</h1>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="project_id">Project:</label>
+            <select id="project_id" name="project_id" required {% if projectgrant %}disabled{% endif %}>
+                <option value="">-- Select Project --</option>
+                {% for project in projects %}
+                <option value="{{ project.project_id }}" {% if projectgrant and projectgrant.project_id == project.project_id %}selected{% endif %}>
+                    {{ project.project_id }} - {{ project.title }}
+                </option>
+                {% endfor %}
+            </select>
+            {% if projectgrant %}<input type="hidden" name="project_id" value="{{ projectgrant.project_id }}">{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="grant_id">Grant:</label>
+            <select id="grant_id" name="grant_id" required {% if projectgrant %}disabled{% endif %}>
+                <option value="">-- Select Grant --</option>
+                {% for grant in grants %}
+                <option value="{{ grant.grant_id }}" {% if projectgrant and projectgrant.grant_id == grant.grant_id %}selected{% endif %}>
+                    {{ grant.grant_id }} - {{ grant.source }}
+                </option>
+                {% endfor %}
+            </select>
+            {% if projectgrant %}<input type="hidden" name="grant_id" value="{{ projectgrant.grant_id }}">{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="amount_allocated">Amount Allocated (USD):</label>
+            <input type="number" id="amount_allocated" name="amount_allocated" value="{{ projectgrant.amount_allocated if projectgrant else '' }}" step="0.01" min="0">
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary">{% if projectgrant %}Update{% else %}Allocate{% endif %}</button>
+            <a href="{{ url_for('view_project_grant') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="number"],
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+select:disabled {
+    background-color: #f5f5f5;
+    color: #666;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #545b62;
+}
+</style>
+{% endblock %}

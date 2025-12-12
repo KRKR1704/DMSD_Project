@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>{% if workson %}Edit{% else %}Add{% endif %} Member-Project Assignment</h1>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="member_id">Lab Member:</label>
+            <select id="member_id" name="member_id" required {% if workson %}disabled{% endif %}>
+                <option value="">-- Select Member --</option>
+                {% for member in members %}
+                <option value="{{ member.member_id }}" {% if workson and workson.member_id == member.member_id %}selected{% endif %}>
+                    {{ member.member_id }} - {{ member.name }}
+                </option>
+                {% endfor %}
+            </select>
+            {% if workson %}<input type="hidden" name="member_id" value="{{ workson.member_id }}">{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="project_id">Project:</label>
+            <select id="project_id" name="project_id" required {% if workson %}disabled{% endif %}>
+                <option value="">-- Select Project --</option>
+                {% for project in projects %}
+                <option value="{{ project.project_id }}" {% if workson and workson.project_id == project.project_id %}selected{% endif %}>
+                    {{ project.project_id }} - {{ project.title }}
+                </option>
+                {% endfor %}
+            </select>
+            {% if workson %}<input type="hidden" name="project_id" value="{{ workson.project_id }}">{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="role">Role (optional):</label>
+            <input type="text" id="role" name="role" value="{{ workson.role if workson else '' }}" placeholder="e.g., Developer, Researcher">
+        </div>
+
+        <div class="form-group">
+            <label for="weekly_hours">Weekly Hours (optional):</label>
+            <input type="number" id="weekly_hours" name="weekly_hours" value="{{ workson.weekly_hours if workson else '' }}" step="0.5" min="0">
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary">{% if workson %}Update{% else %}Assign{% endif %}</button>
+            <a href="{{ url_for('view_works_on') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+select:disabled {
+    background-color: #f5f5f5;
+    color: #666;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #545b62;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Research Lab Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body>
+    <header class="site-header container">
+      <div class="brand"><h1>Research Lab Manager</h1></div>
+      <nav class="main-nav">
+        <a href="/">Home</a>
+        <a href="/pm">Project & Member Management</a>
+        <a href="/equipment">Equipment</a>
+        <a href="/reports_dashboard">Grant & Publication Reporting</a>
+        <a href="{{ url_for('sql_editor') }}">SQL Editor</a>
+        <a href="{{ url_for('all_page') }}">All</a>
+      </nav>
+    </header>
+    <div class="container">
+      <div class="card">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div>
+            {% for category, msg in messages %}
+              <div class="alert {% if category=='error' %}alert-error{% elif category=='success' %}alert-success{% endif %}">
+                <strong>{{ category|capitalize }}:</strong> {{ msg }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+  </body>
+</html>

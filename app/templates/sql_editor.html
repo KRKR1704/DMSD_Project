@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>SQL Editor</h2>
+  <p class="muted">Warning: This editor executes SQL directly against the application database. Use with care. DML/DDL statements will modify the database.</p>
+  <form method="post">
+    <label>SQL:</label><br>
+    <textarea name="sql" rows="8" style="width:100%;max-width:900px;">{{ sql if sql }}</textarea><br>
+    <button type="submit" class="btn">Run</button>
+  </form>
+  {% if error %}
+    <div class="alert alert-error">Error: {{ error }}</div>
+  {% endif %}
+  {% if message %}
+    <div class="alert alert-success">{{ message }}</div>
+  {% endif %}
+  {% if result is not none %}
+    <h3>Results</h3>
+    {% if result|length == 0 %}
+      <p class="muted">No rows returned.</p>
+    {% else %}
+      <table>
+        <thead>
+          <tr>
+            {% for c in columns %}<th>{{ c }}</th>{% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in result %}
+            <tr>
+              {% for v in row %}
+                <td>{{ v }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  {% endif %}
+{% endblock %}

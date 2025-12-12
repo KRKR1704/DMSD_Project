@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h1>{% if mentorship %}Edit{% else %}Create{% endif %} Mentorship</h1>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="mentor_id">Mentor (Faculty/Senior):</label>
+            <select id="mentor_id" name="mentor_id" required {% if mentorship %}disabled{% endif %}>
+                <option value="">-- Select Mentor --</option>
+                {% for member in members %}
+                <option value="{{ member.member_id }}" data-type="{{ member.member_type }}" {% if mentorship and mentorship.mentor_id == member.member_id %}selected{% endif %}>
+                    {{ member.member_id }} - {{ member.name }}
+                </option>
+                {% endfor %}
+            </select>
+            {% if mentorship %}<input type="hidden" name="mentor_id" value="{{ mentorship.mentor_id }}">{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="mentee_id">Mentee (Student):</label>
+            <select id="mentee_id" name="mentee_id" required {% if mentorship %}disabled{% endif %}>
+                <option value="">-- Select Mentee --</option>
+                {% for member in members %}
+                <option value="{{ member.member_id }}" data-type="{{ member.member_type }}" {% if mentorship and mentorship.mentee_id == member.member_id %}selected{% endif %}>
+                    {{ member.member_id }} - {{ member.name }}
+                </option>
+                {% endfor %}
+            </select>
+            {% if mentorship %}<input type="hidden" name="mentee_id" value="{{ mentorship.mentee_id }}">{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ mentorship.start_date if mentorship else '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="end_date">End Date (optional):</label>
+            <input type="date" id="end_date" name="end_date" value="{{ mentorship.end_date if mentorship else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Notes (optional):</label>
+            <textarea id="notes" name="notes" rows="4">{{ mentorship.notes if mentorship else '' }}</textarea>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary">{% if mentorship %}Update{% else %}Create{% endif %}</button>
+            <a href="{{ url_for('view_mentorship') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.form-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="date"],
+select,
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+select:disabled {
+    background-color: #f5f5f5;
+    color: #666;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #545b62;
+}
+</style>
+
+<!-- Client-side mentorship validation removed: checks are enforced server-side only -->
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Faculty</h2>
+  <table>
+    <tr><th>Member ID</th><th>Department</th><th>Affiliation</th><th>Title</th></tr>
+    {% for f in faculty %}
+    <tr>
+      <td>{{ f.member_id }}</td>
+      <td>{{ f.department }}</td>
+      <td>{{ f.affiliation }}</td>
+      <td>{{ f.title }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

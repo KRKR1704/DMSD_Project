@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>{% if member %}Edit Member{% else %}Add Member{% endif %}</h2>
+  <form method="post">
+    <label>Name: <input name="name" value="{{ member.name if member }}"></label><br>
+    <label>Type:
+      <select name="member_type">
+        <option value="faculty" {% if member and member.member_type=='faculty' %}selected{% endif %}>Faculty</option>
+        <option value="student" {% if member and member.member_type=='student' %}selected{% endif %}>Student</option>
+        <option value="collaborator" {% if member and member.member_type=='collaborator' %}selected{% endif %}>Collaborator</option>
+      </select>
+    </label><br>
+    <label>Join Date: <input type="date" name="join_date" value="{{ member.join_date if member }}" required></label><br>
+    <hr>
+    <p>Subtype fields (shown based on selected type):</p>
+
+    <div id="faculty_fields" class="hidden subtype">
+      <h4>Faculty</h4>
+      <label>Department: <input name="department" value="{{ subtype.department if subtype and subtype.department }}"></label><br>
+      <label>Affiliation: <input name="faculty_affiliation" value="{{ subtype.affiliation if subtype and subtype.affiliation }}"></label><br>
+      <label>Title: <input name="title" value="{{ subtype.title if subtype and subtype.title }}"></label><br>
+      <!-- biography removed for faculty -->
+    </div>
+
+    <div id="student_fields" class="hidden subtype">
+      <h4>Student</h4>
+      <label>Student Number: <input name="student_number" value="{{ subtype.student_number if subtype and subtype.student_number }}"></label><br>
+      <label>Academic Level: <select name="academic_level">
+        <option value="freshman" {% if subtype.academic_level=='freshman' %}selected{% endif %}>Freshman</option>
+        <option value="sophomore" {% if subtype.academic_level=='sophomore' %}selected{% endif %}>Sophomore</option>
+        <option value="junior" {% if subtype.academic_level=='junior' %}selected{% endif %}>Junior</option>
+        <option value="senior" {% if subtype.academic_level=='senior' %}selected{% endif %}>Senior</option>
+        <option value="graduate" {% if subtype.academic_level=='graduate' %}selected{% endif %}>Graduate</option>
+      </select></label><br>
+      <label>Major: <input name="major" value="{{ subtype.major if subtype and subtype.major }}"></label><br>
+      <label>Affiliation: <input name="student_affiliation" value="{{ subtype.affiliation if subtype and subtype.affiliation }}"></label><br>
+      <p>Note: A member must work on at least one project; you can select multiple below.</p>
+    </div>
+
+    <div id="collab_fields" class="hidden subtype">
+      <h4>Collaborator</h4>
+      <label>Organization: <input name="organization" value="{{ subtype.organization if subtype and subtype.organization }}"></label><br>
+      <label>Contact Info: <input name="contact_info" value="{{ subtype.contact_info if subtype and subtype.contact_info }}"></label><br>
+      <label>Biography: <textarea name="biography">{{ subtype.biography if subtype and subtype.biography }}</textarea></label><br>
+    </div>
+    <hr>
+    <div id="project_assignment">
+      <h4>Project Assignments (required)</h4>
+      <p>Select one or more projects and provide a role and weekly hours for each selected project.</p>
+      {% for p in projects %}
+        {% set wk = workson.get(p.project_id) if workson is defined else None %}
+        <div class="proj-item">
+          <label class="label-normal"><input type="checkbox" name="project_ids" value="{{ p.project_id }}" class="projchk" {% if wk %}checked{% endif %}> {{ p.project_id }} - {{ p.title }}</label>
+          <div class="proj-meta {% if not wk %}hidden{% endif %}">
+            <label>Role: <input type="text" name="role_{{ p.project_id }}" value="{{ wk.role if wk }}"></label>
+            <label class="ml-10">Weekly hours: <input type="number" min="0" step="0.5" name="weekly_hours_{{ p.project_id }}" value="{{ wk.weekly_hours if wk else 10 }}"></label>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <button type="submit">Save</button>
+  </form>
+  <script>
+    const sel = document.querySelector('select[name="member_type"]');
+    const facultyDiv = document.getElementById('faculty_fields');
+    const studentDiv = document.getElementById('student_fields');
+    const collabDiv = document.getElementById('collab_fields');
+    const deptInput = document.querySelector('input[name="department"]');
+    const titleInput = document.querySelector('input[name="title"]');
+    const studentNum = document.querySelector('input[name="student_number"]');
+    const academicLevel = document.querySelector('select[name="academic_level"]');
+    const orgInput = document.querySelector('input[name="organization"]');
+    const projectSelect = document.querySelector('select[name="project_id"]');
+    const weeklyHours = document.querySelector('input[name="weekly_hours"]');
+    function updateFields(){
+      const v = sel.value;
+      facultyDiv.classList.toggle('hidden', v!=='faculty');
+      studentDiv.classList.toggle('hidden', v!=='student');
+      collabDiv.classList.toggle('hidden', v!=='collaborator');
+      // toggle required attributes
+      if(deptInput) deptInput.required = (v==='faculty');
+      if(titleInput) titleInput.required = (v==='faculty');
+      if(studentNum) studentNum.required = (v==='student');
+      if(academicLevel) academicLevel.required = (v==='student');
+      if(orgInput) orgInput.required = (v==='collaborator');
+      if(projectSelect) projectSelect.required = false; // optional
+      if(weeklyHours) weeklyHours.required = false;
+    }
+    sel.addEventListener('change', updateFields);
+    // initial show based on server-side member type
+    updateFields();
+
+    // project checkbox behavior: toggle role/hours inputs
+    const projChecks = document.querySelectorAll('.projchk');
+    projChecks.forEach(function(ch){
+      ch.addEventListener('change', function(){
+        const meta = this.parentElement.nextElementSibling;
+        if(!meta) return;
+        meta.classList.toggle('hidden', !this.checked);
+      });
+    });
+
+    // validate at least one project and require role & hours for each selected
+    document.querySelector('form').addEventListener('submit', function(ev){
+      const checked = Array.from(document.querySelectorAll('.projchk')).filter(c => c.checked);
+      if(checked.length === 0){
+        ev.preventDefault();
+        alert('A member must be assigned to at least one project.');
+        return false;
+      }
+      for(const c of checked){
+        const pid = c.value;
+        const role = document.querySelector('[name="role_' + pid + '"]').value.trim();
+        const wh = document.querySelector('[name="weekly_hours_' + pid + '"]').value.trim();
+        if(!role){ ev.preventDefault(); alert('Please provide a role for selected project ' + pid); return false; }
+        if(!wh || isNaN(Number(wh))){ ev.preventDefault(); alert('Please provide numeric weekly hours for selected project ' + pid); return false; }
+      }
+      // existing member form also had date validation for students etc; keep prior behavior
+    });
+  </script>
+{% endblock %}

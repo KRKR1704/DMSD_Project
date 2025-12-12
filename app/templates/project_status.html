@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Project Status</h2>
+  <form method="get" action="{{ url_for('pm_project_status') }}">
+    <label>Project ID: <input type="text" name="project_id" value="{{ request.args.get('project_id','') }}" placeholder="P1 or 1"></label>
+    <button type="submit">Search</button>
+  </form>
+
+  {% if request.args.get('project_id') %}
+    {% if project %}
+      <h3>Project {{ project.project_id }}</h3>
+      <div class="mt-8">
+        <label>Check at: <input type="datetime-local" id="proj_check"></label>
+        <span id="proj_live_status" class="ml-10 muted"></span>
+      </div>
+      <table>
+        <thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Start</th><th>End</th><th>Leader</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>{{ project.project_id }}</td>
+            <td>{{ project.title }}</td>
+            <td>{{ project.status }}</td>
+            <td>{{ project.start_date }}</td>
+            <td>{{ project.end_date }}</td>
+            <td>{{ project.leader_id }}</td>
+          </tr>
+        </tbody>
+      </table>
+        <h4>Grants funding this project</h4>
+        {% if grants and grants|length > 0 %}
+          <table>
+            <thead><tr><th>Grant ID</th><th>Source</th><th>Budget</th><th>Start</th><th>Duration</th></tr></thead>
+            <tbody>
+            {% for pg, g in grants %}
+              <tr>
+                <td>{{ g.grant_id }}</td>
+                <td>{{ g.source }}</td>
+                <td>{{ g.budget }}</td>
+                <td>{{ g.start_date }}</td>
+                <td>{{ g.duration }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No grants found for this project.</p>
+        {% endif %}
+
+        <h4>Members working on this project</h4>
+        {% if members and members|length > 0 %}
+          <table>
+            <thead><tr><th>Member ID</th><th>Name</th><th>Role</th><th>Weekly hours</th></tr></thead>
+            <tbody>
+            {% for wo, m in members %}
+              <tr>
+                <td>{{ m.member_id }}</td>
+                <td>{{ m.name }}</td>
+                <td>{{ wo.role }}</td>
+                <td>{{ wo.weekly_hours }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No members assigned to this project.</p>
+        {% endif %}
+        <h4>Mentorships among project members</h4>
+        {% if mentorships and mentorships|length > 0 %}
+          <table>
+            <thead><tr><th>Mentor ID</th><th>Mentor Name</th><th>Mentee ID</th><th>Mentee Name</th><th>Start</th><th>End</th></tr></thead>
+            <tbody>
+            {% for mt in mentorships %}
+              <tr>
+                <td>{{ mt.mentor.member_id if mt.mentor else mt['mentor'] }}</td>
+                <td>{{ mt.mentor.name if mt.mentor else '-' }}</td>
+                <td>{{ mt.mentee.member_id if mt.mentee else mt['mentee'] }}</td>
+                <td>{{ mt.mentee.name if mt.mentee else '-' }}</td>
+                <td>{{ mt.start_date }}</td>
+                <td>{{ mt.end_date }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="muted">No mentorship relations among members of this project.</p>
+        {% endif %}
+    {% else %}
+      <p>No project found with ID {{ request.args.get('project_id') }}.</p>
+    {% endif %}
+  {% else %}
+    <p>Enter a Project ID and click Search to view its status.</p>
+  {% endif %}
+  <script>
+    const projCheck = document.getElementById('proj_check');
+    const projLive = document.getElementById('proj_live_status');
+    function setNow(){
+      const d=new Date();
+      const s = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+      if(projCheck) projCheck.value = s;
+    }
+    async function checkProjectLive(){
+      if(!projCheck) return;
+      const when = projCheck.value;
+      const pid = new URLSearchParams(window.location.search).get('project_id');
+      if(!pid || !when) return;
+      const params = new URLSearchParams({project_id: pid, when: when});
+      try{
+        const res = await fetch('/project/status?' + params.toString());
+        const j = await res.json();
+        projLive.classList.remove('text-green','text-orange','text-gray');
+        if(j.status === 'not found'){
+          projLive.textContent = 'Project not found'; projLive.classList.add('text-gray');
+        } else if(j.active){ projLive.textContent = 'Active'; projLive.classList.add('text-green'); }
+        else { projLive.textContent = j.status || 'Not active'; projLive.classList.add('text-orange'); }
+      }catch(err){ projLive.textContent='Unknown'; projLive.classList.add('text-gray'); }
+    }
+    setNow();
+    if(projCheck) projCheck.addEventListener('change', checkProjectLive);
+    window.addEventListener('load', checkProjectLive);
+  </script>
+{% endblock %}

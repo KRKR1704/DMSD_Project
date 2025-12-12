@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Average Student Publications per Major</h2>
+<table>
+  <tr><th>Major</th><th>Avg Publications</th></tr>
+  {% for r in rows %}
+  <tr><td>{{ r[0] or '-' }}</td><td style="text-align:right">{{ '%.2f'|format(r[1] or 0) }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

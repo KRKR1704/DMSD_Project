@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Grant & Publication Reporting</h2>
+  <p style="background: #fff3cd; padding: 10px; border-radius: 4px; border-left: 4px solid #ffc107;">
+    <strong>PLACEHOLDER:</strong> This page will provide comprehensive grant and publication reporting.
+  </p>
+  <div style="margin-top: 20px; display: flex; gap: 20px; flex-wrap: wrap;">
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 250px;">
+      <h3>Grants</h3>
+      <p>View and manage funding grants.</p>
+      <a href="{{ url_for('grants') }}" style="padding: 8px 16px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View Grants</a>
+      <a href="{{ url_for('grant_status') }}" style="padding: 8px 16px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; display: inline-block; margin-left:10px;">Grant Status</a>
+    </div>
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 250px;">
+      <h3>Publications</h3>
+      <p>View and manage publications.</p>
+        <a href="{{ url_for('top_authors') }}" style="padding: 8px 16px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View Reports</a>
+        <a href="{{ url_for('avg_student_pubs') }}" style="padding:8px 12px;margin-left:8px;background:#17a2b8;color:#fff;border:none;border-radius:4px;cursor:pointer;text-decoration:none;">Avg Student Pubs / Major</a>
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 250px;">
+  
+        document.getElementById('avg_pubs_modal').classList.remove('hidden');
+      }catch(err){ document.getElementById('avg_pubs_content').textContent = 'Error loading report'; document.getElementById('avg_pubs_modal').classList.remove('hidden'); }
+      btn.disabled = false;
+    });
+    document.getElementById('avg_pubs_close').addEventListener('click', ()=>{ document.getElementById('avg_pubs_modal').classList.add('hidden'); });
+  </script>
+{% endblock %}

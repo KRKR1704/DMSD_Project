@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Authorship - Publication Authors</h2>
+  <p><a href="{{ url_for('authorship_new') }}" class="btn btn-primary">+ Add Author</a></p>
+  <table class="table">
+    <tr><th>Publication ID</th><th>Title</th><th>Member ID</th><th>Member Name</th><th>Author Order</th><th>Author Role</th><th>Actions</th></tr>
+    {% for a in authorship %}
+    <tr>
+      <td>{{ a.pub_id }}</td>
+      <td>{{ a.publication.title if a.publication else 'Untitled' }}</td>
+      <td>{{ a.member_id }}</td>
+      <td>{{ a.member.name if a.member else 'N/A' }}</td>
+      <td>{{ a.author_order }}</td>
+      <td>{{ a.author_role }}</td>
+      <td>
+        <a href="{{ url_for('authorship_edit', pub_id=a.pub_id, member_id=a.member_id) }}" class="btn btn-small">Edit</a>
+        <form method="POST" action="{{ url_for('authorship_delete', pub_id=a.pub_id, member_id=a.member_id) }}" style="display: inline;">
+          <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Remove this author?')">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <style>
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    .table th, .table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    .table th {
+      background: #f6f8fa;
+    }
+    .btn-small {
+      padding: 5px 10px;
+      font-size: 12px;
+      text-decoration: none;
+      display: inline-block;
+      margin-right: 4px;
+      background: #007bff;
+      color: white;
+      border-radius: 3px;
+    }
+    .btn-small:hover { opacity: 0.9 }
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+      border-radius: 3px;
+      padding: 5px 10px;
+    }
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+  </style>
+{% endblock %}

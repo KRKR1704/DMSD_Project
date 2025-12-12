@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>{% if project %}Edit Project{% else %}Add Project{% endif %}</h2>
+  <form method="post">
+    <label>Title: <input name="title" required value="{{ project.title if project }}"></label><br>
+    <label>Start Date: <input type="date" name="start_date" required value="{{ project.start_date if project }}"></label><br>
+    <label>End Date: <input type="date" name="end_date" required value="{{ project.end_date if project }}"></label><br>
+    <label>Expected Duration (months): <input type="number" inputmode="numeric" pattern="\\d*" min="0" step="1" name="expected_duration" id="expected_duration" required value="{{ project.expected_duration if project }}"> <span id="duration_calc" class="duration-calc"></span></label><br>
+    <label>Grants:</label>
+    <div id="grant_ids">
+      {% for g in grants %}
+        <div class="proj-item" data-gid="{{ g.grant_id }}" data-gstart="{{ g.start_date if g.start_date else '' }}" data-gduration="{{ g.duration if g.duration is not none else '' }}">
+            <label class="label-normal"><input type="checkbox" name="grant_ids" value="{{ g.grant_id }}" class="gchk" {% if project and g.grant_id in project_grant_ids %}checked{% endif %}> {{ g.grant_id }} - {{ g.source }}</label>
+            <div class="proj-meta">Amount from this grant to allocate to project: <input type="number" name="amount_{{ g.grant_id }}" step="0.01" min="0" class="galloc" placeholder="0.00" {% if project and project_grant_amounts and g.grant_id in project_grant_amounts %}value="{{ project_grant_amounts[g.grant_id] }}"{% else %}disabled{% endif %}></div>
+          </div>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="grant_count" id="grant_count" value="0">
+    <br>
+    <label>Status:
+      <select name="status" required>
+        <option value="">-- select --</option>
+        <option value="active">active</option>
+        <option value="completed">completed</option>
+        <option value="paused">paused</option>
+      </select>
+    </label><br>
+    <label>Leader:
+      <select name="leader_id" required>
+        <option value="">-- select --</option>
+        {% for f in faculties %}
+          <option value="{{ f.member_id }}" {% if project and project.leader_id==f.member_id %}selected{% endif %}>{{ f.member_id }} - {{ f.department }}</option>
+        {% endfor %}
+      </select>
+    </label><br>
+    <button type="submit">Save</button>
+  </form>
+  <script>
+    const s = document.querySelector('input[name="start_date"]');
+    const e = document.querySelector('input[name="end_date"]');
+    const ed = document.getElementById('expected_duration');
+    const dc = document.getElementById('duration_calc');
+    function calcDuration(){
+      if(!s.value || !e.value){ dc.textContent = ''; ed.value = ''; return; }
+      const sd = new Date(s.value);
+      const edate = new Date(e.value);
+      if(edate < sd){
+        dc.textContent = 'ERROR: end date must be same or after start date';
+        dc.style.color='red';
+        ed.value = '';
+        return false;
+      }
+      // compute full months difference (adjust by day-of-month)
+      let months = (edate.getFullYear()-sd.getFullYear())*12 + (edate.getMonth()-sd.getMonth());
+      if(edate.getDate() < sd.getDate()) months -= 1;
+      if(months < 0) months = 0;
+      ed.value = months;
+      ed.dataset.max = months;
+      dc.textContent = months + (months===1 ? ' month' : ' months');
+      dc.style.color='#555';
+      return true;
+    }
+    s.addEventListener('change', calcDuration);
+    e.addEventListener('change', calcDuration);
+    // validate on submit
+    document.querySelector('form').addEventListener('submit', function(ev){
+      if(!calcDuration()){
+        ev.preventDefault();
+        alert('Invalid dates: end date must be same or after start date.');
+        return;
+      }
+      // set grant count hidden field so server and UI know if none selected
+      const checks = Array.from(document.querySelectorAll('input[name="grant_ids"]'));
+      const selected = checks.filter(c => c.checked).length;
+      document.getElementById('grant_count').value = String(selected);
+    });
+    // enable/disable allocation fields when grant checkbox changes
+    Array.from(document.querySelectorAll('.gchk')).forEach(function(ch){
+      ch.addEventListener('change', function(){
+        const pid = ch.value; const f = document.querySelector('[name="amount_' + pid + '"]');
+        if(f) f.disabled = !ch.checked;
+      });
+    });
+
+    // Grant availability: only allow grants active at project start date to be selectable
+    function addMonths(date, months){
+      const d = new Date(date.getTime());
+      const day = d.getDate();
+      d.setMonth(d.getMonth() + months);
+      if (d.getDate() < day) d.setDate(0);
+      return d;
+    }
+
+    function updateGrantAvailability(){
+      const startVal = s.value || '';
+      const chkboxes = Array.from(document.querySelectorAll('#grant_ids .proj-item'));
+      let compareDate = null;
+      if(startVal){ compareDate = new Date(startVal + 'T00:00:00'); }
+      else { compareDate = new Date(); }
+      chkboxes.forEach(function(div){
+        const gid = div.dataset.gid;
+        const gstart = div.dataset.gstart || '';
+        const gdur = div.dataset.gduration || '';
+        const checkbox = div.querySelector('.gchk');
+        const alloc = div.querySelector('.galloc');
+        let available = true;
+        if(gstart){
+          try{
+            const gs = new Date(gstart + 'T00:00:00');
+            if(compareDate < gs) available = false;
+            if(gdur){
+              const gd = parseInt(gdur);
+              if(!isNaN(gd)){
+                const gend = addMonths(gs, gd);
+                if(compareDate > gend) available = false;
+              }
+            }
+          }catch(e){ }
+        }
+        if(!available){
+          if(checkbox) { checkbox.checked = false; checkbox.disabled = true; }
+          if(alloc) { alloc.disabled = true; }
+        } else {
+          if(checkbox) checkbox.disabled = false;
+          if(alloc) alloc.disabled = !(checkbox && checkbox.checked);
+        }
+      });
+    }
+
+    // update availability when start date changes and on initial load
+    s.addEventListener('change', updateGrantAvailability);
+    window.addEventListener('load', updateGrantAvailability);
+    // validate allocation amounts for checked grants on submit
+    document.querySelector('form').addEventListener('submit', function(ev){
+      const checked = Array.from(document.querySelectorAll('.gchk')).filter(c => c.checked);
+      for(const c of checked){
+        const pid = c.value; const f = document.querySelector('[name="amount_' + pid + '"]');
+        if(!f || f.value.trim() === ''){
+          ev.preventDefault(); alert('Please enter allocation amount for grant ' + pid); return false;
+        }
+        const v = parseFloat(f.value);
+        if(isNaN(v) || v < 0){ ev.preventDefault(); alert('Allocation for grant ' + pid + ' must be a non-negative number'); return false; }
+      }
+    });
+    // initial calc
+    calcDuration();
+    // make sure expected_duration only accepts numbers (strip non-digits)
+    ed.addEventListener('input', function(){
+      var cleaned = (this.value || '').replace(/[^0-9]/g,'');
+      if (cleaned !== this.value) this.value = cleaned;
+      // if a max is set (from start/end dates), prevent increasing beyond computed months
+      var max = this.dataset.max !== undefined ? parseInt(this.dataset.max) : NaN;
+      if (!isNaN(max) && this.value !== ''){
+        var v = parseInt(this.value);
+        if (v > max){
+          this.value = String(max);
+          dc.textContent = 'Limited to ' + max + (max===1 ? ' month' : ' months');
+          dc.style.color = 'orange';
+        } else {
+          // keep normal display
+          dc.style.color = '#555';
+        }
+      }
+    });
+  </script>
+{% endblock %}

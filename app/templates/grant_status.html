@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Grant Status</h2>
+  <form method="get" style="margin-bottom:16px;">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <label style="display:flex;gap:6px;align-items:center">Grant ID: <input name="grant_id" placeholder="G1 or 1" value="{{ query_gid if query_gid }}"></label>
+      <label style="display:flex;gap:6px;align-items:center">Start: <input type="date" name="start" value="{{ request.args.get('start') if request.args.get('start') }}"></label>
+      <label style="display:flex;gap:6px;align-items:center">End: <input type="date" name="end" value="{{ request.args.get('end') if request.args.get('end') }}"></label>
+      <button class="link-btn" type="submit">Lookup</button>
+    </div>
+  </form>
+  {% if grant is none and query_gid %}
+    <div class="alert alert-error">Grant {{ query_gid }} not found.</div>
+  {% elif grant %}
+    <div class="card">
+      <h3>{{ grant.grant_id }} — {{ grant.source }}</h3>
+      {% if request.args.get('start') or request.args.get('end') %}
+        <p><strong>Active projects in period:</strong> {{ active_count if active_count is not none else 0 }}</p>
+      {% endif %}
+      <p><strong>Budget:</strong> {{ grant.budget }}</p>
+      <p><strong>Start:</strong> {{ grant.start_date }} <strong>Duration:</strong> {{ grant.duration }}</p>
+      <h4>Allocated Projects</h4>
+      {% if projects %}
+        {% for row in projects %}
+          <div class="card" style="margin-bottom:10px;">
+            <p><strong>Project:</strong> {{ row.project.project_id if row.project else 'N/A' }} — {{ row.project.title if row.project else '-' }}</p>
+            <p><strong>Amount Allocated:</strong> {{ row.amount }}</p>
+            <p><strong>Members working on this project:</strong></p>
+            {% if row.members and row.members|length > 0 %}
+              <table>
+                <tr><th>Member ID</th><th>Name</th><th>Role</th><th>Weekly Hours</th></tr>
+                {% for w in row.members %}
+                  <tr>
+                    <td>{{ w.member.member_id if w.member else 'N/A' }}</td>
+                    <td>{{ w.member.name if w.member else '-' }}</td>
+                    <td>{{ w.role }}</td>
+                    <td>{{ w.weekly_hours }}</td>
+                  </tr>
+                {% endfor %}
+              </table>
+            {% else %}
+              <p class="muted">No members assigned to this project.</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="muted">No project allocations found for this grant.</p>
+      {% endif %}
+    </div>
+  {% else %}
+    <p class="muted">Enter a grant id to view details.</p>
+  {% endif %}
+{% endblock %}

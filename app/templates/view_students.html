@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Students</h2>
+  <table>
+    <tr><th>Member ID</th><th>Student Number</th><th>Academic Level</th><th>Major</th><th>Affiliation</th></tr>
+    {% for s in students %}
+    <tr>
+      <td>{{ s.member_id }}</td>
+      <td>{{ s.student_number }}</td>
+      <td>{{ s.academic_level }}</td>
+      <td>{{ s.major }}</td>
+      <td>{{ s.affiliation }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

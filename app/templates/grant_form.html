@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>{% if grant %}Edit Grant{% else %}Add Grant{% endif %}</h2>
+  <form method="post">
+    <label>Source: <input name="source" value="{{ grant.source if grant }}"></label><br>
+    <label>Budget: <input name="budget" type="number" step="0.01" value="{{ grant.budget if grant }}"></label><br>
+    <label>Start Date: <input type="date" name="start_date" value="{{ grant.start_date if grant }}"></label><br>
+    <label>Duration (months): <input name="duration" type="number" min="0" step="1" value="{{ grant.duration if grant }}"></label><br>
+    <hr>
+    <p>Assign to one or more projects (required):</p>
+    {% for p in projects %}
+      {% set checked = selected_ids is defined and p.project_id in selected_ids %}
+      <div class="proj-item">
+        <label class="label-normal">
+          <input type="checkbox" name="project_ids" value="{{ p.project_id }}" class="projchk" {% if checked %}checked{% endif %}> {{ p.project_id }} - {{ p.title }}
+        </label>
+        <div class="proj-meta">
+          Amount to allocate to this project: <input type="number" name="amount_{{ p.project_id }}" step="0.01" min="0" class="allocfield" placeholder="0.00" {% if not checked %}disabled{% endif %} value="{% if amounts is defined %}{{ amounts.get(p.project_id, '') }}{% endif %}">
+        </div>
+      </div>
+    {% endfor %}
+    <button type="submit">Save</button>
+  </form>
+  <script>
+    const checks = document.querySelectorAll('.projchk');
+    const allocs = document.querySelectorAll('.allocfield');
+    checks.forEach(function(ch){
+      ch.addEventListener('change', function(){
+        // enable/disable corresponding amount field
+        const pid = ch.value;
+        const f = document.querySelector('[name="amount_' + pid + '"]');
+        if(f) f.disabled = !ch.checked;
+      });
+      // ensure pre-checked items have enabled amount fields on load
+      if(ch.checked){
+        const f = document.querySelector('[name="amount_' + ch.value + '"]');
+        if(f) f.disabled = false;
+      }
+    });
+    document.querySelector('form').addEventListener('submit', function(ev){
+      const checked = Array.from(document.querySelectorAll('.projchk')).filter(c => c.checked);
+      if(checked.length === 0){
+        ev.preventDefault();
+        alert('A grant must be assigned to at least one project.');
+        return false;
+      }
+      // ensure amounts provided for selected projects and numeric
+      for(const c of checked){
+        const pid = c.value;
+        const f = document.querySelector('[name="amount_' + pid + '"]');
+        if(!f || f.value.trim() === ''){
+          ev.preventDefault();
+          alert('Please enter allocation amount for project ' + pid);
+          return false;
+        }
+        const v = parseFloat(f.value);
+        if(isNaN(v) || v < 0){
+          ev.preventDefault();
+          alert('Allocation for project ' + pid + ' must be a non-negative number');
+          return false;
+        }
+      }
+      // client-side budget check (optional): if budget present, ensure sum <= budget
+      const budgetField = document.querySelector('[name="budget"]');
+      if(budgetField && budgetField.value.trim() !== ''){
+        const budget = parseFloat(budgetField.value);
+        if(!isNaN(budget)){
+          let sum = 0;
+          for(const c of checked){
+            const pid = c.value;
+            const f = document.querySelector('[name="amount_' + pid + '"]');
+            sum += parseFloat(f.value) || 0;
+          }
+          if(sum > budget){
+            ev.preventDefault();
+            alert('Total allocated to projects (' + sum.toFixed(2) + ') exceeds grant budget (' + budget.toFixed(2) + ').');
+            return false;
+          }
+        }
+      }
+      // allow submit
+    });
+  </script>
+{% endblock %}

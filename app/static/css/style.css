@@ -1,0 +1,65 @@
+/* Main site stylesheet - moved inline styles here and improved layout */
+:root{
+  --bg:#f7f8fb;
+  --card:#ffffff;
+  --muted:#666;
+  --accent:#2b6ea3;
+  --accent-2:#1b9aa5;
+  --success:#d4edda;
+  --error:#f8d7da;
+  --font-sans: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{font-family:var(--font-sans);background:var(--bg);margin:0;padding:24px;color:#222}
+.site-header{max-width:1100px;margin:0 auto 18px;padding:18px 0}
+.brand h1{margin:0;font-size:1.8rem;color:var(--accent)}
+nav.main-nav{margin-top:8px}
+nav.main-nav a{color:var(--accent);text-decoration:none;margin-right:12px;padding:6px 10px;border-radius:6px}
+nav.main-nav a:hover{background:rgba(43,110,163,0.08)}
+.container{max-width:1100px;margin:0 auto;background:transparent;padding:12px}
+.card{background:var(--card);border-radius:8px;padding:16px;box-shadow:0 1px 3px rgba(10,10,10,0.04);margin-bottom:14px}
+form label{display:block;margin-bottom:8px}
+input[type="text"],input[type="number"],input[type="date"],input[type="datetime-local"],select,textarea{padding:8px;border:1px solid #ddd;border-radius:6px;width:100%;max-width:420px}
+input[type="checkbox"]{margin-right:8px}
+.muted{color:var(--muted)}
+.mb-8{margin-bottom:8px}
+.mb-4{margin-bottom:4px}
+.mt-8{margin-top:8px}
+.ml-10{margin-left:10px}
+.ml-18{margin-left:18px}
+.proj-item{margin-bottom:8px}
+.proj-meta{margin-left:18px;margin-top:6px}
+.hidden{display:none}
+.btn{background:var(--accent);color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer}
+.btn-secondary{background:transparent;border:1px solid #ddd;color:var(--accent);}
+.alert{padding:10px;margin:8px 0;border-radius:6px}
+.alert-error{background:var(--error);color:#6a1b1b}
+.alert-success{background:var(--success);color:#1f4d2b}
+table{border-collapse:collapse;width:100%;background:var(--card);border-radius:6px;overflow:hidden}
+th,td{padding:10px;border-bottom:1px solid #eee;text-align:left}
+th{background:#f4f6f8}
+.small{font-size:0.9rem}
+.label-normal{font-weight:normal}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.form-grid{grid-template-columns:1fr}}
+
+/* status color helpers */
+.text-green{color:green}
+.text-orange{color:orange}
+.text-gray{color:gray}
+.duration-calc{margin-left:10px;color:#555}
+/* additional button / toolbar styles */
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.toolbar .btn{padding:6px 10px;font-weight:600}
+.link-btn{background:transparent;border:1px solid #cfdbe6;color:var(--accent);padding:6px 10px;border-radius:6px;text-decoration:none}
+.danger{background:#f44336;color:#fff}
+.text-red{color:red}
+
+/* Project info styling for index page (app static) */
+.project-info{font-family: var(--font-sans); color:var(--accent);}
+.project-info .project-title{font-size:1.15rem;font-weight:700;margin:6px 0;color:var(--accent)}
+.project-info .course{font-weight:600;color:var(--accent-2);margin:4px 0}
+.project-info .team-members{margin-top:8px;padding-left:1.1rem;color:#333}
+.project-info .team-members li{font-weight:600;margin-bottom:4px}
+

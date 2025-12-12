@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Mentorship Relations (shared projects)</h2>
+  <table>
+    <thead><tr><th>Mentor ID</th><th>Mentor</th><th>Mentee ID</th><th>Mentee</th><th>Common Projects</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+        <tr>
+          <td>{{ r.mentor_id }}</td>
+          <td>{{ r.mentor_name }}</td>
+          <td>{{ r.mentee_id }}</td>
+          <td>{{ r.mentee_name }}</td>
+          <td>{{ r.common_projects }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

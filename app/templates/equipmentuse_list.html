@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Equipment Usage</h2>
+  <div class="toolbar">
+    <a class="link-btn" href="{{ url_for('equipment_use_new') }}">+ Add Equipment Use</a>
+    <a class="link-btn" href="{{ url_for('equipment') }}">View Equipment</a>
+    <a class="link-btn" href="{{ url_for('equipment_new') }}">+ Add Equipment</a>
+  </div>
+  <table>
+    <tr><th>ID</th><th>Equipment</th><th>Member</th><th>Start</th><th>End</th><th>Purpose</th><th>Actions</th></tr>
+    {% for u in uses %}
+    <tr>
+      <td>{{ u.use_id }}</td>
+      <td>{{ u.equip_id }}</td>
+      <td>{{ u.member_id }}</td>
+      <td>{{ u.use_start }}</td>
+      <td>{{ u.use_end }}</td>
+      <td>{{ u.purpose }}</td>
+      <td>
+        <form method="post" action="{{ url_for('equipment_use_delete', uid=u.use_id) }}" onsubmit="return confirm('Delete usage?');" style="display:inline">
+          <button type="submit" class="btn btn-secondary">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Projects active between {{ start }} and {{ end }}</h2>
+<table>
+  <tr><th>Count</th></tr>
+  {% for r in rows %}
+  <tr><td>{{ r[0] }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

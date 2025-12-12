@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Projects</h2>
+  <div class="toolbar">
+    <a class="link-btn" href="{{ url_for('project_new') }}">+ Add Project</a>
+  </div>
+  <table>
+    <tr><th>ID</th><th>Title</th><th>Start</th><th>End</th><th>Status</th><th>Leader</th></tr>
+    {% for p in projects %}
+    <tr>
+      <td>{{ p.project_id }}</td>
+      <td>{{ p.title }}</td>
+      <td>{{ p.start_date }}</td>
+      <td>{{ p.end_date }}</td>
+      <td>{{ p.status }}</td>
+      <td>{{ p.leader_id }}</td>
+      <td>
+        <a class="link-btn" href="{{ url_for('project_edit', pid=p.project_id) }}">Edit</a>
+        <form method="post" action="{{ url_for('project_delete', pid=p.project_id) }}" onsubmit="return confirm('Delete project?');" style="display:inline">
+          <button type="submit" class="btn btn-secondary">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

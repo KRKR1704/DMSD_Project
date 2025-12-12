@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Member & Project Manager</h2>
+  <p>Select a section below to manage lab members and projects:</p>
+  <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px;">
+      <h3>Members Manager</h3>
+      <p>Add, edit, and manage lab members (faculty, students, collaborators).</p>
+      <a href="{{ url_for('members_manager') }}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Go to Members Manager</a>
+    </div>
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px;">
+      <h3>Projects Manager</h3>
+      <p>Create, edit, and manage research projects.</p>
+      <a href="{{ url_for('projects_manager') }}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Go to Projects Manager</a>
+    </div>
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px;">
+      <h3>Project Status Page</h3>
+      <p>View and track the status of all ongoing projects.</p>
+      <a href="{{ url_for('project_status') }}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Go to Project Status</a>
+    </div>
+    <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 200px;">
+      <h3>Mentorship Relations</h3>
+      <p>Manage mentoring relationships between members.</p>
+      <a href="{{ url_for('mentorship_relations') }}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Go to Mentorship Relations</a>
+    </div>
+  </div>
+{% endblock %}

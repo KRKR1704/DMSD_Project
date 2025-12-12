@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Publications</h2>
+  <div class="toolbar">
+    <a class="link-btn" href="{{ url_for('publication_new') }}">+ Add Publication</a>
+  </div>
+  <table>
+    <tr><th>ID</th><th>Title</th><th>Date</th><th>Venue</th><th>DOI</th><th>Status</th><th>Actions</th></tr>
+    {% for p in pubs %}
+    <tr>
+      <td>{{ p.pub_id }}</td>
+      <td>{{ p.title }}</td>
+      <td>{{ p.pub_date }}</td>
+      <td>{{ p.venue }}</td>
+      <td>{{ p.doi }}</td>
+      <td>{{ p.status }}</td>
+      <td>
+        <a class="link-btn" href="{{ url_for('publication_edit', pid=p.pub_id) }}">Edit</a>
+        <form method="post" action="{{ url_for('publication_delete', pid=p.pub_id) }}" style="display:inline" onsubmit="return confirm('Delete publication {{ p.pub_id }}?');">
+          <button type="submit" class="btn btn-secondary">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

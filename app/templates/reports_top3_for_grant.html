@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Top 3 members for grant {{ gid }}</h2>
+<table>
+  <tr><th>Member ID</th><th>Name</th><th>Publications</th></tr>
+  {% for r in rows %}
+  <tr><td>{{ r[0] }}</td><td>{{ r[1] }}</td><td>{{ r[2] }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

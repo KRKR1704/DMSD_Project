@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>{% if equipment %}Edit Equipment{% else %}Add Equipment{% endif %}</h2>
+  <form method="post">
+    <label>Name: <input name="name" value="{{ equipment.name if equipment }}" required></label><br>
+    <label>Type: <input name="type" value="{{ equipment.type if equipment }}" required></label><br>
+    <label>Purchase Date: <input type="date" name="purchase_date" value="{{ equipment.purchase_date if equipment }}" required></label><br>
+    <label>Status:
+      <select name="status">
+        <option value="available">available</option>
+        <option value="in use">in use</option>
+        <option value="retired">retired</option>
+      </select>
+    </label><br>
+    <label>Location: <input name="location" value="{{ equipment.location if equipment }}" required></label><br>
+    <label>Notes: <input name="notes" value="{{ equipment.notes if equipment }}" required></label><br>
+    <button type="submit" class="btn">Save</button>
+  </form>
+{% endblock %}

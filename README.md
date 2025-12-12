@@ -6,6 +6,7 @@ Research Lab Manager is a teaching/demo project (DBMS implementation) that uses 
 ## Prerequisites
 - Python 3.10+ (Windows, macOS, Linux)
 - Git (optional)
+- Install SQLite, SQLTools SQLite, and SQLite Viewer from the extentions of VS Code
 
 ## Quick setup
 1. Create and activate a virtual environment and install dependencies:

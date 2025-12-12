@@ -49,10 +49,6 @@ Open http://127.0.0.1:5000 in your browser.
 - [app/](app/) — Flask app, templates and static assets (main code)
 - [app/static/css/style.css](app/static/css/style.css) — primary stylesheet for the app
 
-## Notes on constraints and behavior
-- The `Project` table stores a single `leader_id` (FK to `Faculty`) — each project therefore has a single canonical leader.
-- Additional role-level constraints (for example preventing multiple PIs in `WorksOn`) are implemented via triggers where needed; see [sql/schema_sqlite.sql](sql/schema_sqlite.sql).
-- Equipment concurrency is limited via triggers to prevent more than 3 overlapping users per equipment.
 
 ## Recommended cleanup before committing
 - Add the virtual environment and DB file to `.gitignore`:
